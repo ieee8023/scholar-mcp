@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scholar-mcp"
+version = "0.1.0"
+description = "Paper tooling MCP servers"
+requires-python = ">=3.9"
+dependencies = [
+  "requests>=2.31",
+  "beautifulsoup4>=4.12",
+  "pdfminer.six>=20250506",
+  "PyMuPDF>=1.22.5",
+  "fitz",
+  "mcp>=1.2.0",
+]
+
+[project.scripts]
+scholar-mcp-scholar = "tools.mcp_scholar_server:main"
+scholar-mcp-download = "tools.mcp_download_server:main"
+
+[tool.setuptools]
+packages = ["tools"]
