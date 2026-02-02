@@ -78,7 +78,6 @@ class SemanticScholarClient:
     DEFAULT_PAPER_FIELDS: Sequence[str] = (
         "paperId",
         "corpusId",
-        "doi",
         "title",
         "abstract",
         "venue",
