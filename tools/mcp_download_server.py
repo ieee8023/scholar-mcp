@@ -28,6 +28,17 @@ mcp = FastMCP("scholar-mcp-download")
 def download_extract(paper_id_or_doi: str, output_dir: str) -> Dict[str, Any]:
     """Download a paper PDF and extract text.
 
+    Args:
+        paper_id_or_doi:
+            A paper identifier usable with Semantic Scholar. Recommended forms:
+            - Semantic Scholar `paperId` (e.g., "649def34f8be52c8b66281af98ae884c09aef38b")
+            - DOI with prefix (e.g., "DOI:10.1038/s41746-023-00919-1")
+            Also accepted:
+            - Bare DOI (e.g., "10.1038/s41746-023-00919-1")
+            - DOI URL (e.g., "https://doi.org/10.1038/s41746-023-00919-1")
+        output_dir:
+            Directory where artifacts are written.
+
     The MCP client should pass output_dir as a folder named "papers" inside
     the workspace (for example: <workspace>/papers). Returns file paths to the
     PDF and extracted text.

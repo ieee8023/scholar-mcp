@@ -1,0 +1,12 @@
+{
+"servers": {
+"scholar-mcp-scholar": {
+"command": "scholar-mcp-scholar",
+"args": []
+},
+"scholar-mcp-download": {
+"command": "scholar-mcp-download",
+"args": []
+}
+}
+}

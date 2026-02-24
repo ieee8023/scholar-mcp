@@ -25,6 +25,20 @@ Tool IDs exposed:
 
 The download tool requires `output_dir` and writes the PDF, extracted text, and `.pdf_cache.json` under that directory. For MCP clients, pass an `output_dir` that points to a `papers` folder inside the workspace (for example: `<workspace>/papers`). Responses include file paths only.
 
+### What to pass as the paper ID
+
+For `scholar-mcp.download.extract`, pass the same kind of identifier you’d use with `scholar-mcp.scholar.get`:
+
+- Best: Semantic Scholar `paperId` from search/get results (a hash-like string).
+- Also good: `DOI:<doi>`.
+- Also accepted: a bare DOI like `10.1038/...` or a DOI URL like `https://doi.org/10.1038/...`.
+
+Examples:
+
+- `paper_id_or_doi="649def34f8be52c8b66281af98ae884c09aef38b"`
+- `paper_id_or_doi="DOI:10.1038/s41746-023-00919-1"`
+- `paper_id_or_doi="10.1038/s41746-023-00919-1"`
+
 ## Install
 
 ```bash

@@ -62,7 +62,15 @@ def scholar_get(
     paper_id: str,
     fields: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    """Get a paper by Semantic Scholar paperId or DOI: prefix."""
+    """Get a paper by Semantic Scholar identifier.
+
+    What to pass as `paper_id` (most reliable first):
+    - Semantic Scholar `paperId` from `scholar-mcp.scholar.search` results, e.g.
+      "649def34f8be52c8b66281af98ae884c09aef38b"
+    - Prefixed identifiers, e.g. "DOI:10.1038/s41746-023-00919-1" or "CorpusId:215416146"
+
+    Tip: If you're unsure, do a `scholar.search` first and reuse the returned `paperId`.
+    """
     with _redirect_stdout_to_stderr():
         return _client().get_paper(paper_id, fields=fields)
 
@@ -78,6 +86,8 @@ def scholar_relations(
     """Get paper citations or references.
 
     relation: "citations" or "references".
+
+    `paper_id` should usually be a Semantic Scholar `paperId` from search/get.
     """
     relation_norm = (relation or "").strip().lower()
     if relation_norm not in {"citations", "references"}:
