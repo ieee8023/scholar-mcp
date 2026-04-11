@@ -25,3 +25,11 @@ More examples: see [tools/semanticscholar.md](tools/semanticscholar.md).
   "unpaywall_email": "test@test.com"
 }
 ```
+
+## Example semanticscholar.config.json
+
+```
+{
+  "SEMANTIC_SCHOLAR_API_KEY": "KEY"
+}
+```
