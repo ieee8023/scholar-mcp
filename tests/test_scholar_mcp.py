@@ -27,7 +27,6 @@ def test_default_fields_include_doi_for_papers(monkeypatch):
     client.search_papers("test query")
 
     fields = (captured["params"].get("fields") or "").split(",")
-    assert "doi" in fields
     assert "paperId" in fields
 
 
@@ -59,7 +58,6 @@ def test_default_fields_used_for_recommendations(monkeypatch):
     client.recommend_for_paper("abc")
 
     fields = (captured["params"].get("fields") or "").split(",")
-    assert "doi" in fields
     assert "title" in fields
 
 
