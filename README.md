@@ -15,3 +15,13 @@ MCP servers wrapping Semantic Scholar search/get APIs plus a PDF download + text
 - Also supported: `DOI:<doi>`, a bare DOI (`10.*/...`), or a DOI URL (`https://doi.org/...`).
 
 More examples: see [tools/semanticscholar.md](tools/semanticscholar.md).
+
+
+## Example download_config.json
+
+```
+{
+  "download_domain": "SOME_SCIHUB_DOMAIN",
+  "unpaywall_email": "test@test.com"
+}
+```
