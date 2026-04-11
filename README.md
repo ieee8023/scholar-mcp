@@ -17,6 +17,27 @@ MCP servers wrapping Semantic Scholar search/get APIs plus a PDF download + text
 More examples: see [tools/semanticscholar.md](tools/semanticscholar.md).
 
 
+## To install
+
+Clone this repo and install the package with `pip install -e .` and then add the following to your mcp server list:
+
+```
+{
+  "servers": {
+    "scholar-mcp-scholar": {
+      "command": "scholar-mcp-scholar",
+      "args": []
+    },
+  "scholar-mcp-download": {
+      "command": "scholar-mcp-download",
+      "args": []
+    }
+  }
+}
+```
+
+
+
 ## Example download_config.json
 
 ```
