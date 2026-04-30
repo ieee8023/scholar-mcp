@@ -195,3 +195,11 @@ for a in alist.get("data", []):
 - Cache issues: If you suspect stale data, delete the cache directory and re-run your script.
 - HTTP 404: IDs or title queries may not resolve; double-check identifier formats.
 - JSON errors: Check `fields` syntax and allowed field names in the official API docs.
+ - JSON errors: Check `fields` syntax and allowed field names in the official API docs.
+     Important: do NOT request a top-level `doi` field — the Graph API does not accept `doi` as a paper field
+     and will return a 400 error. To obtain DOI values, request `externalIds` in `fields` (it contains DOI and
+     other external identifiers), or fetch a paper directly with `get_paper("DOI:10.1038/...")`.
+     Common allowed paper fields include: `paperId`, `corpusId`, `title`, `abstract`, `venue`, `year`,
+     `publicationDate`, `publicationTypes`, `journal`, `authors`, `citationCount`, `referenceCount`,
+     `influentialCitationCount`, `isOpenAccess`, `openAccessPdf`, `fieldsOfStudy`, `s2FieldsOfStudy`,
+     `tldr`, `externalIds`, `url`.

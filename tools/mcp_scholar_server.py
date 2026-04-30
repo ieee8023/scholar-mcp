@@ -28,7 +28,7 @@ def _client() -> SemanticScholarClient:
 mcp = FastMCP("scholar-mcp-scholar")
 
 
-@mcp.tool(name="scholar-mcp.scholar.search")
+@mcp.tool(name="scholar-mcp-scholar-search")
 def scholar_search(
     query: str,
     fields: Optional[List[str]] = None,
@@ -41,7 +41,20 @@ def scholar_search(
     offset: int = 0,
     limit: int = 10,
 ) -> Dict[str, Any]:
-    """Search papers by relevance."""
+    """
+    Search papers by relevance.
+
+    Agent instructions for callers (important):
+    - Do NOT include the literal field name `doi` in the `fields` parameter: the Semantic Scholar
+        Graph API does not accept `doi` as a top-level field and including it will cause a HTTP 400 error.
+    - To retrieve DOI values, request `externalIds` in `fields` (it contains DOI and other external identifiers),
+        or fetch the paper by DOI using `scholar-mcp.scholar.get` with `paper_id="DOI:<doi>"`.
+    - Allowed paper fields you may request include:
+        paperId, corpusId, title, abstract, venue, year, publicationDate, publicationTypes, journal,
+        authors, citationCount, referenceCount, influentialCitationCount, isOpenAccess, openAccessPdf,
+        fieldsOfStudy, s2FieldsOfStudy, tldr, externalIds, url
+    - Keep `fields` minimal to avoid large responses and rate limits.
+    """
     with _redirect_stdout_to_stderr():
         return _client().search_papers(
             query=query,
@@ -57,7 +70,7 @@ def scholar_search(
         )
 
 
-@mcp.tool(name="scholar-mcp.scholar.get")
+@mcp.tool(name="scholar-mcp-scholar-get")
 def scholar_get(
     paper_id: str,
     fields: Optional[List[str]] = None,
@@ -70,12 +83,16 @@ def scholar_get(
     - Prefixed identifiers, e.g. "DOI:10.1038/s41746-023-00919-1" or "CorpusId:215416146"
 
     Tip: If you're unsure, do a `scholar.search` first and reuse the returned `paperId`.
+    
+    Agent instruction: when specifying `fields` for `scholar-mcp.scholar.get`, do NOT request a top-level
+    `doi` field (it is invalid). Request `externalIds` to obtain DOI values, or pass a DOI as the
+    `paper_id` argument (for example: `DOI:10.1038/...`).
     """
     with _redirect_stdout_to_stderr():
         return _client().get_paper(paper_id, fields=fields)
 
 
-@mcp.tool(name="scholar-mcp.scholar.relations")
+@mcp.tool(name="scholar-mcp-scholar-relations")
 def scholar_relations(
     paper_id: str,
     relation: str,
@@ -99,7 +116,7 @@ def scholar_relations(
         return _client().paper_references(paper_id, fields=fields, offset=offset, limit=limit)
 
 
-@mcp.tool(name="scholar-mcp.scholar.author")
+@mcp.tool(name="scholar-mcp-scholar-author")
 def scholar_author(
     author_id: Optional[str] = None,
     query: Optional[str] = None,
@@ -117,7 +134,7 @@ def scholar_author(
         return _client().search_authors(query=str(query), fields=fields, offset=offset, limit=limit)
 
 
-@mcp.tool(name="scholar-mcp.scholar.recommendations")
+@mcp.tool(name="scholar-mcp-scholar-recommendations")
 def scholar_recommendations(
     paper_id: Optional[str] = None,
     positive_paper_ids: Optional[List[str]] = None,
