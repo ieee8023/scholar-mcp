@@ -137,7 +137,7 @@ def test_check_bibtex_file_enriches_entry_from_title_match(tmp_path, monkeypatch
 
     monkeypatch.setattr(cb, "SemanticScholarClient", FakeClient)
 
-    results = cb.check_bibtex_file(str(bib_path), write=True)
+    results = cb.check_bibtex_file(str(bib_path), write=True, show_progress=False)
 
     assert results[0]["status"] == "matched"
     rewritten = bib_path.read_text(encoding="utf-8")
@@ -181,7 +181,7 @@ def test_check_bibtex_file_uses_doi_lookup_when_available(tmp_path, monkeypatch)
 
     monkeypatch.setattr(cb, "SemanticScholarClient", FakeClient)
 
-    results = cb.check_bibtex_file(str(bib_path))
+    results = cb.check_bibtex_file(str(bib_path), show_progress=False)
 
     assert results[0]["source"] == "doi"
     assert results[0]["status"] == "matched"
@@ -210,3 +210,20 @@ def test_print_results_shows_invalid_summary(capsys):
     output = capsys.readouterr().out
     assert "Summary: matched=1 mismatch=1 not_found=0 error=0" in output
     assert "Invalid entries: bad" in output
+
+
+def test_iter_entries_uses_tqdm(monkeypatch):
+    entries = [cb.BibEntry(entry_type="article", key="a", fields={})]
+    captured = {}
+
+    def fake_tqdm(items, **kwargs):
+        captured["kwargs"] = kwargs
+        return list(items)
+
+    monkeypatch.setattr(cb, "tqdm", fake_tqdm)
+
+    result = list(cb.iter_entries(entries, show_progress=True))
+
+    assert result == entries
+    assert captured["kwargs"]["desc"] == "Checking BibTeX entries"
+    assert captured["kwargs"]["unit"] == "entry"

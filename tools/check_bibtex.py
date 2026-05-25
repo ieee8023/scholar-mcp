@@ -6,10 +6,12 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from tqdm import tqdm
 
 try:
     from .semanticscholar import SemanticScholarClient, SemanticScholarError
@@ -250,6 +252,12 @@ def apply_updates(entry: BibEntry, updates: Dict[str, str]) -> None:
             entry.fields[field_name] = value
 
 
+def iter_entries(entries: Sequence[BibEntry], show_progress: bool = True) -> Iterable[BibEntry]:
+    if not show_progress:
+        return entries
+    return tqdm(entries, desc="Checking BibTeX entries", unit="entry", file=sys.stderr)
+
+
 def check_bibtex_file(
     bibtex_path: str,
     *,
@@ -257,13 +265,14 @@ def check_bibtex_file(
     write: bool = False,
     api_key: Optional[str] = None,
     min_title_similarity: float = 0.9,
+    show_progress: bool = True,
 ) -> List[Dict[str, Any]]:
     path = Path(bibtex_path)
     text = path.read_text(encoding="utf-8")
     entries = parse_bibtex(text)
     client = SemanticScholarClient(api_key=api_key)
     results: List[Dict[str, Any]] = []
-    for entry in entries:
+    for entry in iter_entries(entries, show_progress=show_progress):
         try:
             paper, source = fetch_paper_match(client, entry)
             result = compare_entry(entry, paper, source, min_title_similarity)
