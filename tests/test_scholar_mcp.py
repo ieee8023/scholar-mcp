@@ -1,7 +1,9 @@
 from pathlib import Path
+import json
 
 import pytest
 
+from tools import check_bibtex as cb
 from tools.semanticscholar import SemanticScholarClient
 from tools import download_paper_text as dpt
 
@@ -101,3 +103,110 @@ def test_download_paper_and_extract_with_mocked_download(tmp_path, monkeypatch):
     assert text_path.exists()
     content = text_path.read_text(encoding="utf-8")
     assert "Downloaded PDF extraction works" in content
+
+
+def test_check_bibtex_file_enriches_entry_from_title_match(tmp_path, monkeypatch):
+    bib_path = tmp_path / "sample.bib"
+    bib_path.write_text(
+        """@article{lime,
+  title = {Why Should I Trust You? Explaining the Predictions of Any Classifier},
+  year = {2016},
+  author = {Ribeiro, Marco Tulio},
+}
+""",
+        encoding="utf-8",
+    )
+
+    class FakeClient:
+        def __init__(self, api_key=None):
+            self.api_key = api_key
+
+        def get_paper(self, paper_id, fields=None):
+            raise AssertionError("DOI lookup should not run for entries without a DOI")
+
+        def title_search(self, title, fields=None):
+            assert "Why Should I Trust You" in title
+            return {
+                "paperId": "s2-paper-123",
+                "title": "Why Should I Trust You? Explaining the Predictions of Any Classifier",
+                "year": 2016,
+                "url": "https://www.semanticscholar.org/paper/s2-paper-123",
+                "externalIds": {"DOI": "10.1145/2939672.2939778"},
+                "authors": [{"name": "Marco Tulio Ribeiro"}],
+            }
+
+    monkeypatch.setattr(cb, "SemanticScholarClient", FakeClient)
+
+    results = cb.check_bibtex_file(str(bib_path), write=True)
+
+    assert results[0]["status"] == "matched"
+    rewritten = bib_path.read_text(encoding="utf-8")
+    assert "semanticscholarid = {s2-paper-123}" in rewritten
+    assert "doi = {10.1145/2939672.2939778}" in rewritten
+    assert "url = {https://www.semanticscholar.org/paper/s2-paper-123}" in rewritten
+
+
+def test_check_bibtex_file_uses_doi_lookup_when_available(tmp_path, monkeypatch):
+    bib_path = tmp_path / "sample.bib"
+    bib_path.write_text(
+        """@article{attention,
+  title = {Attention Is All You Need},
+  year = {2017},
+  doi = {https://doi.org/10.5555/3295222.3295349},
+}
+""",
+        encoding="utf-8",
+    )
+
+    calls = {"get_paper": 0, "title_search": 0}
+
+    class FakeClient:
+        def __init__(self, api_key=None):
+            self.api_key = api_key
+
+        def get_paper(self, paper_id, fields=None):
+            calls["get_paper"] += 1
+            assert paper_id == "DOI:10.5555/3295222.3295349"
+            return {
+                "paperId": "s2-attention",
+                "title": "Attention Is All You Need",
+                "year": 2017,
+                "url": "https://www.semanticscholar.org/paper/s2-attention",
+                "externalIds": {"DOI": "10.5555/3295222.3295349"},
+            }
+
+        def title_search(self, title, fields=None):
+            calls["title_search"] += 1
+            raise AssertionError("Title lookup should not run when DOI is present")
+
+    monkeypatch.setattr(cb, "SemanticScholarClient", FakeClient)
+
+    results = cb.check_bibtex_file(str(bib_path))
+
+    assert results[0]["source"] == "doi"
+    assert results[0]["status"] == "matched"
+    assert calls == {"get_paper": 1, "title_search": 0}
+
+
+def test_invalid_results_collects_non_matching_entries():
+    results = [
+        {"key": "ok", "status": "matched"},
+        {"key": "bad1", "status": "mismatch"},
+        {"key": "bad2", "status": "not_found"},
+        {"key": "bad3", "status": "error"},
+    ]
+
+    assert [result["key"] for result in cb.invalid_results(results)] == ["bad1", "bad2", "bad3"]
+
+
+def test_print_results_shows_invalid_summary(capsys):
+    cb.print_results(
+        [
+            {"key": "ok", "source": "doi", "status": "matched", "title_similarity": 0.0, "updates": {}, "year_matches": True},
+            {"key": "bad", "source": "title", "status": "mismatch", "title_similarity": 0.82, "updates": {}, "year_matches": False},
+        ]
+    )
+
+    output = capsys.readouterr().out
+    assert "Summary: matched=1 mismatch=1 not_found=0 error=0" in output
+    assert "Invalid entries: bad" in output

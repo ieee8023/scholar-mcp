@@ -17,6 +17,38 @@ MCP servers wrapping Semantic Scholar search/get APIs plus a PDF download + text
 
 More examples: see [tools/semanticscholar.md](tools/semanticscholar.md).
 
+## BibTeX verification
+
+Use the BibTeX checker to verify each entry against Semantic Scholar and optionally enrich the file with:
+
+- `semanticscholarid`: the Semantic Scholar paper ID
+- `doi`: normalized DOI from `externalIds`
+- `url`: Semantic Scholar paper URL
+
+Dry run with a human-readable summary:
+
+```bash
+scholar-mcp-bibtex-check references.bib
+```
+
+Write changes in place:
+
+```bash
+scholar-mcp-bibtex-check references.bib --write
+```
+
+Write an enriched copy and emit JSON:
+
+```bash
+scholar-mcp-bibtex-check references.bib --output references.checked.bib --json
+```
+
+Lookup order:
+
+1. Existing `doi` field
+2. Existing `url` field
+3. Entry `title` as a fallback match
+
 
 ## To install
 

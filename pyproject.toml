@@ -19,6 +19,7 @@ dependencies = [
 [project.scripts]
 scholar-mcp-scholar = "tools.mcp_scholar_server:main"
 scholar-mcp-download = "tools.mcp_download_server:main"
+scholar-mcp-bibtex-check = "tools.check_bibtex:main"
 
 [tool.setuptools]
 packages = ["tools"]
