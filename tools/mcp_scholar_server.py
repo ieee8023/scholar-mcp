@@ -13,7 +13,7 @@ from .semanticscholar import SemanticScholarClient
 _LOGGER = logging.getLogger("scholar-mcp.scholar")
 # Write logs to stdout so MCP hosts that mark stderr as warnings don't
 # display ordinary INFO logs as warnings.
-_handler = logging.StreamHandler(sys.stdout)
+_handler = logging.StreamHandler(sys.stderr)
 _handler.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
 _LOGGER.addHandler(_handler)
 _LOGGER.setLevel(logging.INFO)
