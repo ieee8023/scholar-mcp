@@ -84,18 +84,6 @@ def main() -> None:
         except Exception:
             os.environ["MCP_DOWNLOAD_CONFIG"] = json.dumps(cli_cfg)
 
-    # Echo effective MCP args so host logs show what configuration is in use.
-    effective = os.environ.get("MCP_SERVER_ARGS") or os.environ.get("MCP_DOWNLOAD_CONFIG")
-    if effective:
-        try:
-            parsed = json.loads(effective)
-            # Log compact single-line JSON to avoid hosts parsing multiline logs
-            _LOGGER.info("Effective MCP args: %s", json.dumps(parsed, separators=(",", ":")))
-        except Exception:
-            _LOGGER.info("Effective MCP args (raw): %s", effective)
-    else:
-        _LOGGER.info("No MCP args supplied; using package defaults and env vars.")
-
     mcp.run()
 
 
