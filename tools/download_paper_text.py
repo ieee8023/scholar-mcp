@@ -46,7 +46,7 @@ except ImportError:  # pragma: no cover - fallback for script usage
     from semanticscholar import SemanticScholarClient
 
 CONFIG_PATH = Path(__file__).parent / 'download_config.json'
-PDF_FOLDERS = ['/Users/ieee8023/Library/Application Support/Mendeley Desktop/Downloaded']
+PDF_FOLDERS = []
 PDF_CACHE_FILE = str(Path(__file__).parent / '.pdf_cache.json')
 TITLE_MATCH_THRESHOLD = 0.85
 PDF_METADATA_TIMEOUT = 10  # seconds
@@ -59,6 +59,7 @@ def load_download_config():
         'download_domain': '',
         'unpaywall_email': 'test@test.com',
     }
+    # 1) Load values from package config file (lowest precedence)
     try:
         if CONFIG_PATH.exists():
             with open(CONFIG_PATH, 'r') as f:

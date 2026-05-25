@@ -16,7 +16,7 @@ def _make_sample_pdf(path: Path, text: str) -> None:
 
 
 def test_default_fields_include_doi_for_papers(monkeypatch):
-    client = SemanticScholarClient()
+    client = SemanticScholarClient(use_cache=False)
     captured = {}
 
     def fake_get(url, params=None):
@@ -31,7 +31,7 @@ def test_default_fields_include_doi_for_papers(monkeypatch):
 
 
 def test_default_fields_include_author_fields(monkeypatch):
-    client = SemanticScholarClient()
+    client = SemanticScholarClient(use_cache=False)
     captured = {}
 
     def fake_get(url, params=None):
@@ -47,7 +47,7 @@ def test_default_fields_include_author_fields(monkeypatch):
 
 
 def test_default_fields_used_for_recommendations(monkeypatch):
-    client = SemanticScholarClient()
+    client = SemanticScholarClient(use_cache=False)
     captured = {}
 
     def fake_get(url, params=None):

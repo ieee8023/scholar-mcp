@@ -1,5 +1,7 @@
 import contextlib
+import json
 import logging
+import os
 import sys
 from typing import Any, Dict, List, Optional, Sequence
 
@@ -9,7 +11,9 @@ from .semanticscholar import SemanticScholarClient
 
 
 _LOGGER = logging.getLogger("scholar-mcp.scholar")
-_handler = logging.StreamHandler(sys.stderr)
+# Write logs to stdout so MCP hosts that mark stderr as warnings don't
+# display ordinary INFO logs as warnings.
+_handler = logging.StreamHandler(sys.stdout)
 _handler.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
 _LOGGER.addHandler(_handler)
 _LOGGER.setLevel(logging.INFO)
@@ -17,7 +21,8 @@ _LOGGER.setLevel(logging.INFO)
 
 @contextlib.contextmanager
 def _redirect_stdout_to_stderr():
-    with contextlib.redirect_stdout(sys.stderr):
+    # Keep prints going to stdout (no-op redirect) so they appear with logs.
+    with contextlib.redirect_stdout(sys.stdout):
         yield
 
 
@@ -169,6 +174,22 @@ def scholar_recommendations(
 
 
 def main() -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(prog="scholar-mcp-scholar")
+    parser.add_argument("--semantic-scholar-api-key", help="Semantic Scholar API key to use")
+    args = parser.parse_args()
+
+    # If CLI provided the API key, set the env var that the client will read.
+    if args.semantic_scholar_api_key:
+        os.environ["SEMANTIC_SCHOLAR_API_KEY"] = args.semantic_scholar_api_key
+        _LOGGER.info("Effective args: SEMANTIC_SCHOLAR_API_KEY provided via CLI")
+    else:
+        if os.environ.get("SEMANTIC_SCHOLAR_API_KEY"):
+            _LOGGER.info("SEMANTIC_SCHOLAR_API_KEY is set in the environment")
+        else:
+            _LOGGER.info("No CLI API key; using package defaults and env vars.")
+
     mcp.run()
 
 

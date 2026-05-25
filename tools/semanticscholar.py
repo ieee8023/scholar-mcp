@@ -123,7 +123,24 @@ class SemanticScholarClient:
         use_cache: bool = True,
     ) -> None:
         # Resolve API key from (1) parameter (2) env var (3) local config file near the running script/module
-        self.api_key = api_key or os.getenv("SEMANTIC_SCHOLAR_API_KEY") or self._load_api_key_from_config()
+        # Allow MCP-provided JSON config to override file-based config. MCP servers can set
+        # the environment variable `MCP_SERVER_ARGS` (or `SCHOLAR_MCP_CONFIG`) to a JSON
+        # object containing keys like `SEMANTIC_SCHOLAR_API_KEY` or `api_key`.
+        mcp_cfg_json = os.getenv("MCP_SERVER_ARGS") or os.getenv("SCHOLAR_MCP_CONFIG")
+        mcp_api_key = None
+        if mcp_cfg_json:
+            try:
+                parsed = json.loads(mcp_cfg_json)
+                if isinstance(parsed, dict):
+                    # accept several shapes
+                    mcp_api_key = parsed.get("SEMANTIC_SCHOLAR_API_KEY") or parsed.get("api_key")
+                    ss = parsed.get("semantic_scholar") if isinstance(parsed.get("semantic_scholar"), dict) else None
+                    if not mcp_api_key and ss and ss.get("api_key"):
+                        mcp_api_key = ss.get("api_key")
+            except Exception:
+                mcp_api_key = None
+
+        self.api_key = api_key or mcp_api_key or os.getenv("SEMANTIC_SCHOLAR_API_KEY") or self._load_api_key_from_config()
         self.timeout = timeout
         self.base_url = base_url.rstrip("/")
         self.recs_base_url = recs_base_url.rstrip("/")
