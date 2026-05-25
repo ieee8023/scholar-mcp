@@ -183,12 +183,6 @@ def main() -> None:
     # If CLI provided the API key, set the env var that the client will read.
     if args.semantic_scholar_api_key:
         os.environ["SEMANTIC_SCHOLAR_API_KEY"] = args.semantic_scholar_api_key
-        _LOGGER.info("Effective args: SEMANTIC_SCHOLAR_API_KEY provided via CLI")
-    else:
-        if os.environ.get("SEMANTIC_SCHOLAR_API_KEY"):
-            _LOGGER.info("SEMANTIC_SCHOLAR_API_KEY is set in the environment")
-        else:
-            _LOGGER.info("No CLI API key; using package defaults and env vars.")
 
     mcp.run()
 
